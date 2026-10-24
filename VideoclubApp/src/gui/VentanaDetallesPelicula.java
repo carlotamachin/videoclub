@@ -71,12 +71,12 @@ public class VentanaDetallesPelicula extends JFrame {
         lblPromocion.setForeground(Color.WHITE);
         lblPrecioFinal.setForeground(Color.WHITE);
 
-        // Área de descripción oscura
+        //area de descripción oscura
         txtDescripcion.setBackground(new Color(35, 35, 35));
         txtDescripcion.setForeground(Color.WHITE);
         txtDescripcion.setCaretColor(Color.WHITE);
 
-        // Botón rojo estilo Netflix
+        // Boton rojo 
         btnAlquilar.setBackground(new Color(229, 9, 20));
         btnAlquilar.setForeground(Color.WHITE);
         btnAlquilar.setFocusPainted(false);
