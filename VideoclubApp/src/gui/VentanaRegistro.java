@@ -39,12 +39,12 @@ public class VentanaRegistro extends JFrame {
 		cargarComponentes();
 
 		this.add(mainPanel);
-		this.pack();
+		this.setSize(800, 600);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 	}
 
-	public void cargarComponentes() {
+	private void cargarComponentes() {
 		// panel norte
 		JPanel panelLogo = new JPanel();
 		panelLogo.setBackground(Color.BLACK);
