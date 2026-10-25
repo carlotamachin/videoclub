@@ -125,7 +125,7 @@ public class VentanaLogin extends JFrame {
 		
 
 		this.add(mainPanel);
-		this.pack();
+		this.setSize(800, 600);
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);
 
