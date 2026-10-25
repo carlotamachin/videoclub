@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -15,12 +16,12 @@ public class VentanaLogin extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private JTextField txtUsuario;
+	private JTextField txtCorreo;
 	private JPasswordField txtPassword;
 
 	public VentanaLogin() {
 		this.setTitle("Videoclub - Inicio de sesión");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		mainPanel.setBackground(Color.BLACK);
@@ -42,19 +43,20 @@ public class VentanaLogin extends JFrame {
 		panelCampos.setLayout(new GridLayout(3, 1, 10, 10));
 		panelCampos.setBackground(Color.BLACK);
 
-		// usuario
-		JPanel panelUsuario = new JPanel(new FlowLayout());
-		panelUsuario.setBackground(Color.BLACK);
+		// correo
+		JPanel panelCorreo = new JPanel(new FlowLayout());
+		panelCorreo.setBackground(Color.BLACK);
 
-		JLabel lblUsuario = new JLabel("Usuario: ");
-		lblUsuario.setForeground(Color.WHITE);
+		JLabel lblCorreo = new JLabel("Correo: ");
+		lblCorreo.setForeground(Color.WHITE);
+		lblCorreo.setPreferredSize(new Dimension(120,25));
 		
-		txtUsuario = new JTextField(20);
+		txtCorreo = new JTextField(20);
 		
-		panelUsuario.add(lblUsuario);
-		panelUsuario.add(txtUsuario);
+		panelCorreo.add(lblCorreo);
+		panelCorreo.add(txtCorreo);
 		
-		panelCampos.add(panelUsuario);
+		panelCampos.add(panelCorreo);
 
 		// contraseña
 		JPanel panelPassword = new JPanel(new FlowLayout());
@@ -62,6 +64,7 @@ public class VentanaLogin extends JFrame {
 
 		JLabel lblPassword = new JLabel("Contraseña:");
 		lblPassword.setForeground(Color.WHITE);
+		lblPassword.setPreferredSize(new Dimension(120,25));
 
 		txtPassword = new JPasswordField(20);
 
@@ -76,6 +79,19 @@ public class VentanaLogin extends JFrame {
 		panelBotonSesion.setBackground(Color.BLACK);
 		
 		JButton btnLogin = new JButton("Iniciar sesión");
+		btnLogin.setBackground(new Color(255, 195, 40));
+		
+		btnLogin.addActionListener(e->{
+			if(txtCorreo.getText().isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Introduce tu correo.");
+			}
+			else if(txtPassword.getPassword().length == 0) {
+				JOptionPane.showMessageDialog(this, "Introduce tu contraseña.");
+			}
+			else {
+				//falta conectarlo a la BD para comprobar lod datos.
+			}
+		});
 		panelBotonSesion.add(btnLogin);
 		
 		panelCampos.add(panelBotonSesion);
@@ -91,6 +107,14 @@ public class VentanaLogin extends JFrame {
 		panelRegistro.add(lblRegistro);
 		
 		JButton btnRegistro = new JButton("Registrarse");
+		btnRegistro.setBackground(new Color(220, 35, 40));
+		btnRegistro.setForeground(Color.WHITE);
+		
+		btnRegistro.addActionListener(e->{
+			new VentanaRegistro();
+			dispose();
+		});
+		
 		JPanel panelBotonRegistro = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		panelBotonRegistro.setBackground(Color.BLACK);
 		panelBotonRegistro.add(btnRegistro);
