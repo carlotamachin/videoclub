@@ -87,10 +87,12 @@ public class VentanaLogin extends JFrame {
 			}
 			else if(txtPassword.getPassword().length == 0) {
 				JOptionPane.showMessageDialog(this, "Introduce tu contraseña.");
+			}else {
+				// esta parte esta asi porque falta la BD y para poder ver la ventana de las peliculas
+				new VentanaPeliculas();
+				dispose();
 			}
-			else {
-				//falta conectarlo a la BD para comprobar lod datos.
-			}
+
 		});
 		panelBotonSesion.add(btnLogin);
 		
