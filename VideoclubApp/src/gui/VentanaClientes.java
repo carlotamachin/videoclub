@@ -25,6 +25,8 @@ public class VentanaClientes extends JFrame {
 
 	public VentanaClientes() {
 		setTitle("Videoclub - Gestión de clientes");
+		this.setSize(900, 600);
+        this.setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		mainPanel = new JPanel(new BorderLayout());
@@ -33,8 +35,6 @@ public class VentanaClientes extends JFrame {
 		cargarComponentes();
 
 		add(mainPanel);
-		setSize(800, 600);
-		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
@@ -51,7 +51,51 @@ public class VentanaClientes extends JFrame {
 		panelBusqueda.add(lblBusqueda);
 		panelBusqueda.add(txtBusqueda);
 		
-		mainPanel.add(panelBusqueda, BorderLayout.NORTH);
+		// panel superior con el menu
+		JPanel panelSuperior = new JPanel(new BorderLayout());
+		panelSuperior.setBackground(Color.BLACK);
+
+		// parte izquierda
+		JPanel panelIzquierda = new JPanel();
+		panelIzquierda.setBackground(Color.BLACK);
+
+		JLabel lblLogo = new JLabel();
+		ImageIcon logo = cargarImagen("resources/images/logo_videoclub.png",new Dimension(60, 60));
+		lblLogo.setIcon(logo);
+
+		JLabel lblSaludo = new JLabel("Hola, administrador");
+		lblSaludo.setForeground(Color.WHITE);
+
+		panelIzquierda.add(lblLogo);
+		panelIzquierda.add(lblSaludo);
+		panelSuperior.add(panelIzquierda, BorderLayout.WEST);
+
+		// parte derecha
+		JPanel panelDerecha = new JPanel();
+		panelDerecha.setBackground(Color.BLACK);
+
+		JButton btnClientes = new JButton("Clientes");
+		btnClientes.setBackground(new Color(255, 195, 40));
+		btnClientes.setForeground(Color.BLACK);
+
+		JButton btnPeliculas = new JButton("Películas");
+		btnPeliculas.setBackground(new Color(255, 195, 40));
+		btnPeliculas.setForeground(Color.BLACK);
+
+		JButton btnDevoluciones = new JButton("Devoluciones");
+		btnDevoluciones.setBackground(new Color(220, 35, 40));
+		btnDevoluciones.setForeground(Color.WHITE);
+
+		panelDerecha.add(btnClientes);
+		panelDerecha.add(btnPeliculas);
+		panelDerecha.add(btnDevoluciones);
+		panelSuperior.add(panelDerecha, BorderLayout.EAST);
+
+		JPanel panelNorte = new JPanel(new BorderLayout());
+		panelNorte.add(panelSuperior, BorderLayout.NORTH);
+		panelNorte.add(panelBusqueda, BorderLayout.CENTER);
+
+		mainPanel.add(panelNorte, BorderLayout.NORTH);
 		
 		//panel centro con tabla de clientes
 		String[] columnas = {
@@ -206,6 +250,15 @@ public class VentanaClientes extends JFrame {
 			//buscar por nombre o apellido
 			sorterClientes.setRowFilter(RowFilter.regexFilter("(?i)" +texto, 1,2));
 		}
+	}
+	private ImageIcon cargarImagen(String imagen, Dimension dimension) {
+	    ImageIcon imageIcon = new ImageIcon(imagen);
+
+	    Image img = imageIcon.getImage();
+
+	    Image newimg = img.getScaledInstance((int) dimension.getWidth(),(int) dimension.getHeight(), Image.SCALE_SMOOTH);
+
+	    return new ImageIcon(newimg);
 	}
 	
 public static void main(String[] args) {
