@@ -41,6 +41,14 @@ public class GestorPeliculas {
         peliculas.add(new Pelicula(
             siguienteId++, "Toy Story", "Animación",
             1995, 81, 2.00, true));
+
+        peliculas.add(new Pelicula(
+            siguienteId++, "Origen", "Ciencia ficción",
+            2010, 148, 3.00, true));
+
+        peliculas.add(new Pelicula(
+            siguienteId++, "Shrek", "Animación",
+            2001, 90, 2.00, true));
     }
 
     public static ArrayList<Pelicula> getPeliculas() {

@@ -73,6 +73,10 @@ public class VentanaMenuAdmin extends JFrame{
 		btnPeliculas.setBackground(new Color(255, 195, 40));
 		btnPeliculas.setForeground(Color.BLACK);
 		
+		btnPeliculas.addActionListener(e -> {
+		    new VentanaPeliculas(true);
+		});
+		
 		//boton de gestion de devoluciones
 		JButton btnDevoluciones = new JButton("Devoluciones");
 		btnDevoluciones.setBackground(new Color(220, 35, 40));
