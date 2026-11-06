@@ -4,6 +4,8 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -40,8 +42,15 @@ public class VentanaPeliculas extends JFrame {
     private JComboBox<String> cmbGenero;
     private JComboBox<String> cmbDisponibilidad;
 
-    public VentanaPeliculas() {
-        setTitle("Videoclub - Catálogo y gestión de películas");
+    private boolean esAdmin;
+
+    public VentanaPeliculas(boolean esAdmin) {
+        this.esAdmin = esAdmin;
+        if (esAdmin) {
+            setTitle("Videoclub - Gestión de películas");
+        } else {
+            setTitle("Videoclub - Catálogo de películas");
+        }
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         mainPanel = new JPanel(new BorderLayout(10, 10));
@@ -108,6 +117,16 @@ public class VentanaPeliculas extends JFrame {
         tablaPeliculas.setDefaultRenderer(Object.class, new FilaRenderer());
         sorterPeliculas = new TableRowSorter<DefaultTableModel>(modeloPeliculas);
         tablaPeliculas.setRowSorter(sorterPeliculas);
+
+        tablaPeliculas.setToolTipText("Doble clic en una película para ver sus detalles");
+        tablaPeliculas.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && tablaPeliculas.getSelectedRow() != -1) {
+                    abrirDetalles();
+                }
+            }
+        });
         JScrollPane scrollTabla = new JScrollPane(tablaPeliculas);
         mainPanel.add(scrollTabla, BorderLayout.CENTER);
         actualizarTabla();
@@ -133,6 +152,23 @@ public class VentanaPeliculas extends JFrame {
 
         JPanel panelBotones = new JPanel();
         panelBotones.setBackground(Color.BLACK);
+
+        JButton btnDetalles = new JButton("Ver detalles");
+        btnDetalles.setBackground(new Color(255, 195, 40));
+        btnDetalles.addActionListener(e -> {
+            if (tablaPeliculas.getSelectedRow() == -1) {
+                JOptionPane.showMessageDialog(this, "Selecciona una película para ver sus detalles.");
+            } else {
+                abrirDetalles();
+            }
+        });
+        panelBotones.add(btnDetalles);
+
+        if (!esAdmin) {
+            mainPanel.add(panelBotones, BorderLayout.SOUTH);
+            return;
+        }
+
         JButton btnAnadir = new JButton("Añadir película");
         JButton btnModificar = new JButton("Modificar película");
         JButton btnEliminar = new JButton("Eliminar película");
@@ -346,6 +382,24 @@ public class VentanaPeliculas extends JFrame {
         }
     }
 
+    private void abrirDetalles() {
+        int fila = tablaPeliculas.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        int filaModelo = tablaPeliculas.convertRowIndexToModel(fila);
+        String titulo = modeloPeliculas.getValueAt(filaModelo, 1).toString();
+
+        int idBD = VentanaDetallesPelicula.buscarIdPorTitulo(titulo);
+        if (idBD == -1) {
+            JOptionPane.showMessageDialog(this,
+                "\"" + titulo + "\" todavía no está en la base de datos.");
+            return;
+        }
+        VentanaDetallesPelicula ventana = new VentanaDetallesPelicula(idBD);
+        ventana.setVisible(true);
+    }
+
     private Pelicula buscarPelicula(int id) {
         for (Pelicula pelicula : GestorPeliculas.getPeliculas()) {
             if (pelicula.getId() == id) {
@@ -362,5 +416,8 @@ public class VentanaPeliculas extends JFrame {
             "Terror", "Aventura", "Documental"
         };
         return new JComboBox<>(generos);
+    }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new VentanaPeliculas(false));
     }
 }
