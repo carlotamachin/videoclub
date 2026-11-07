@@ -86,6 +86,25 @@ public class VentanaClientes extends JFrame {
 		btnDevoluciones.setBackground(new Color(220, 35, 40));
 		btnDevoluciones.setForeground(Color.WHITE);
 
+		
+		btnClientes.setEnabled(false);
+
+		btnPeliculas.addActionListener(e -> {
+		    new VentanaPeliculas();
+		});
+
+		btnDevoluciones.addActionListener(e -> {
+		    new VentanaDevoluciones();
+		});
+
+		JButton btnInicio = new JButton("Menú");
+		btnInicio.addActionListener(e -> {
+		    new VentanaMenuAdmin();
+		    dispose();
+		});
+
+		panelDerecha.add(btnInicio);
+		
 		panelDerecha.add(btnClientes);
 		panelDerecha.add(btnPeliculas);
 		panelDerecha.add(btnDevoluciones);
@@ -146,6 +165,12 @@ public class VentanaClientes extends JFrame {
 		JPanel panelBotones = new JPanel();
 		panelBotones.setBackground(Color.BLACK);
 
+		JButton btnAnadir = new JButton("Añadir cliente");
+		btnAnadir.setBackground(new Color(255, 195, 40));
+		btnAnadir.setForeground(Color.BLACK);
+		btnAnadir.addActionListener(e -> anadirCliente());
+		panelBotones.add(btnAnadir);
+		
 		JButton btnModificar = new JButton("Modificar cliente");
 		JButton btnEliminar = new JButton("Eliminar cliente");
 		
@@ -259,6 +284,55 @@ public class VentanaClientes extends JFrame {
 	    Image newimg = img.getScaledInstance((int) dimension.getWidth(),(int) dimension.getHeight(), Image.SCALE_SMOOTH);
 
 	    return new ImageIcon(newimg);
+	}
+	
+	private void anadirCliente() {
+	    JTextField txtNombre = new JTextField(20);
+	    JTextField txtApellidos = new JTextField(20);
+	    JTextField txtCorreo = new JTextField(20);
+	    JTextField txtUsuario = new JTextField(20);
+
+	    JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+	    panel.add(new JLabel("Nombre:"));
+	    panel.add(txtNombre);
+	    panel.add(new JLabel("Apellidos:"));
+	    panel.add(txtApellidos);
+	    panel.add(new JLabel("Correo:"));
+	    panel.add(txtCorreo);
+	    panel.add(new JLabel("Usuario:"));
+	    panel.add(txtUsuario);
+
+	    int respuesta = JOptionPane.showConfirmDialog(
+	        this, panel, "Añadir cliente", JOptionPane.OK_CANCEL_OPTION
+	    );
+
+	    if (respuesta != JOptionPane.OK_OPTION) {
+	        return;
+	    }
+
+	    String nombre = txtNombre.getText().trim();
+	    String apellidos = txtApellidos.getText().trim();
+	    String correo = txtCorreo.getText().trim();
+	    String usuario = txtUsuario.getText().trim();
+
+	    if (nombre.isEmpty() || apellidos.isEmpty()
+	            || correo.isEmpty() || usuario.isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "Debes completar todos los campos.");
+	        return;
+	    }
+
+	    int id = 1;
+
+	    for (int i = 0; i < modeloClientes.getRowCount(); i++) {
+	        int idCliente = (Integer) modeloClientes.getValueAt(i, 0);
+
+	        if (idCliente >= id) {
+	            id = idCliente + 1;
+	        }
+	    }
+
+	    modeloClientes.addRow(new Object[]{id, nombre, apellidos, correo, usuario});
+	    txtBusqueda.setText("");
 	}
 	
 public static void main(String[] args) {
