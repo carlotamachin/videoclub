@@ -2,18 +2,24 @@ package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.BorderFactory;
 
@@ -32,12 +38,15 @@ public class VentanaDetallesPelicula extends JFrame {
     private JButton btnAlquilar;
     private JLabel imagen;
     private int idPelicula;
+    private JLabel[] estrellas = new JLabel[5];
+    private JLabel lblValoracion;
+    private static HashMap<Integer, Integer> valoraciones = new HashMap<>();
 
     public VentanaDetallesPelicula(int idPelicula) {
         this.idPelicula = idPelicula;
 
         setTitle("Detalles de la película");
-        setSize(500, 400);
+        setSize(500, 580);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -55,7 +64,7 @@ public class VentanaDetallesPelicula extends JFrame {
 
         btnAlquilar = new JButton("Iniciar alquiler");
 
-        JPanel panelDatos = new JPanel(new GridLayout(7, 1, 5, 5));
+        JPanel panelDatos = new JPanel(new GridLayout(8, 1, 5, 5));
      // Fondo gris casi negro
         panelDatos.setBackground(new Color(20, 20, 20));
 
@@ -92,8 +101,7 @@ public class VentanaDetallesPelicula extends JFrame {
         panelDatos.add(lblDisponibilidad);
         panelDatos.add(lblPromocion);
         panelDatos.add(lblPrecioFinal);
-        add(panelDatos, BorderLayout.NORTH);
-        add(txtDescripcion, BorderLayout.CENTER);
+        panelDatos.add(crearPanelValoracion());
         add(btnAlquilar, BorderLayout.SOUTH);
 
         JLabel logo= new JLabel("VIDEOCLUB");
@@ -105,6 +113,14 @@ public class VentanaDetallesPelicula extends JFrame {
         panelSup.add(logo, BorderLayout.NORTH);
         panelSup.add(panelDatos, BorderLayout.CENTER);
 
+        txtDescripcion.setFont(new Font("Arial", Font.PLAIN, 14));
+        txtDescripcion.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        JScrollPane scrollDescripcion = new JScrollPane(txtDescripcion);
+        scrollDescripcion.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        scrollDescripcion.getViewport().setBackground(new Color(35, 35, 35));
+        scrollDescripcion.setBackground(new Color(20, 20, 20));
+        panelSup.add(scrollDescripcion, BorderLayout.SOUTH);
+
         this.add(panelSup);
         cargarPelicula();
         
@@ -115,6 +131,92 @@ public class VentanaDetallesPelicula extends JFrame {
                 "El proceso de alquiler se conectará más adelante."
             )
         );
+    }
+
+    public static int buscarIdPorTitulo(String titulo) {
+        String sql = "SELECT id_pelicula FROM peliculas WHERE LOWER(titulo) = LOWER(?)";
+        try (Connection conexion = Conexion.conectar();
+             PreparedStatement consulta = conexion.prepareStatement(sql)) {
+            consulta.setString(1, titulo);
+            try (ResultSet resultado = consulta.executeQuery()) {
+                if (resultado.next()) {
+                    return resultado.getInt("id_pelicula");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    private JPanel crearPanelValoracion() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 0));
+        panel.setBackground(new Color(20, 20, 20));
+
+        JLabel lblTexto = new JLabel("Tu valoración: ");
+        lblTexto.setForeground(Color.WHITE);
+        panel.add(lblTexto);
+
+        for (int i = 0; i < estrellas.length; i++) {
+            int valor = i + 1;
+            JLabel estrella = new JLabel("\u2605");
+            estrella.setFont(new Font("Dialog", Font.PLAIN, 22));
+            estrella.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            estrella.setToolTipText(valor + " de 5");
+
+            estrella.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    pintarEstrellas(valor);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    pintarEstrellas(getValoracion());
+                }
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    valoraciones.put(idPelicula, valor);
+                    pintarEstrellas(valor);
+                    actualizarTextoValoracion();
+                }
+            });
+
+            estrellas[i] = estrella;
+            panel.add(estrella);
+        }
+
+        lblValoracion = new JLabel();
+        lblValoracion.setForeground(Color.WHITE);
+        panel.add(lblValoracion);
+
+        pintarEstrellas(getValoracion());
+        actualizarTextoValoracion();
+        return panel;
+    }
+
+    private int getValoracion() {
+        return valoraciones.getOrDefault(idPelicula, 0);
+    }
+
+    private void pintarEstrellas(int cantidad) {
+        for (int i = 0; i < estrellas.length; i++) {
+            if (i < cantidad) {
+                estrellas[i].setForeground(new Color(255, 195, 40));
+            } else {
+                estrellas[i].setForeground(Color.GRAY);
+            }
+        }
+    }
+
+    private void actualizarTextoValoracion() {
+        int valor = getValoracion();
+        if (valor == 0) {
+            lblValoracion.setText("  Sin valorar");
+        } else {
+            lblValoracion.setText("  " + valor + "/5");
+        }
     }
 
     private void cargarPelicula() {
