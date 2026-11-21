@@ -1,3 +1,4 @@
+
 package gui;
 
 import java.awt.BorderLayout;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,7 +23,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.BorderFactory;
 
 import main.Conexion;
 
@@ -34,66 +35,75 @@ public class VentanaDetallesPelicula extends JFrame {
     private JLabel lblDisponibilidad;
     private JLabel lblPromocion;
     private JLabel lblPrecioFinal;
+
     private JTextArea txtDescripcion;
     private JButton btnAlquilar;
-    private JLabel imagen;
+
     private int idPelicula;
+    private int idUsuario;
+
+    private double precioAlquilerFinal;
+
     private JLabel[] estrellas = new JLabel[5];
     private JLabel lblValoracion;
-    private static HashMap<Integer, Integer> valoraciones = new HashMap<>();
 
-    public VentanaDetallesPelicula(int idPelicula) {
+    private static HashMap<Integer, Integer> valoraciones =
+            new HashMap<>();
+
+    private final Color FONDO = new Color(20, 20, 20);
+    private final Color ROJO = new Color(229, 9, 20);
+
+    public VentanaDetallesPelicula(int idPelicula, int idUsuario) {
+
         this.idPelicula = idPelicula;
+        this.idUsuario = idUsuario;
 
         setTitle("Detalles de la película");
         setSize(500, 580);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(FONDO);
 
         lblTitulo = new JLabel();
         lblGenero = new JLabel();
         lblAnio = new JLabel();
         lblPrecio = new JLabel();
         lblDisponibilidad = new JLabel();
-        lblPromocion = new JLabel("Promoción: Sin promoción");
-        lblPrecioFinal = new JLabel("Precio final: -- €");
+        lblPromocion = new JLabel();
+        lblPrecioFinal = new JLabel();
+
         txtDescripcion = new JTextArea(5, 30);
         txtDescripcion.setEditable(false);
         txtDescripcion.setLineWrap(true);
         txtDescripcion.setWrapStyleWord(true);
 
-        btnAlquilar = new JButton("Iniciar alquiler");
+        btnAlquilar = new JButton("Alquilar");
 
+        // Panel de datos
         JPanel panelDatos = new JPanel(new GridLayout(8, 1, 5, 5));
-     // Fondo gris casi negro
-        panelDatos.setBackground(new Color(20, 20, 20));
+        panelDatos.setBackground(FONDO);
+        panelDatos.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        );
 
-        // Título blanco y grande
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
 
-        // Resto de los datos en blanco
-        lblGenero.setForeground(Color.WHITE);
-        lblAnio.setForeground(Color.WHITE);
-        lblPrecio.setForeground(Color.WHITE);
-        lblDisponibilidad.setForeground(Color.WHITE);
-        lblPromocion.setForeground(Color.WHITE);
-        lblPrecioFinal.setForeground(Color.WHITE);
+        JLabel[] etiquetas = {
+            lblGenero,
+            lblAnio,
+            lblPrecio,
+            lblDisponibilidad,
+            lblPromocion,
+            lblPrecioFinal
+        };
 
-        //area de descripción oscura
-        txtDescripcion.setBackground(new Color(35, 35, 35));
-        txtDescripcion.setForeground(Color.WHITE);
-        txtDescripcion.setCaretColor(Color.WHITE);
+        for (JLabel etiqueta : etiquetas) {
+            etiqueta.setForeground(Color.WHITE);
+            etiqueta.setFont(new Font("Arial", Font.PLAIN, 14));
+        }
 
-        // Boton rojo 
-        btnAlquilar.setBackground(new Color(229, 9, 20));
-        btnAlquilar.setForeground(Color.WHITE);
-        btnAlquilar.setFocusPainted(false);
-        btnAlquilar.setOpaque(true);
-        btnAlquilar.setBorderPainted(false);
-        panelDatos.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
-        
         panelDatos.add(lblTitulo);
         panelDatos.add(lblGenero);
         panelDatos.add(lblAnio);
@@ -102,69 +112,95 @@ public class VentanaDetallesPelicula extends JFrame {
         panelDatos.add(lblPromocion);
         panelDatos.add(lblPrecioFinal);
         panelDatos.add(crearPanelValoracion());
+
+        // Logo
+        JLabel logo = new JLabel("VIDEOCLUB");
+        logo.setFont(new Font("Arial", Font.BOLD, 20));
+        logo.setForeground(ROJO);
+
+        JPanel panelSuperior = new JPanel(new BorderLayout());
+        panelSuperior.setBackground(FONDO);
+        panelSuperior.add(logo, BorderLayout.NORTH);
+        panelSuperior.add(panelDatos, BorderLayout.CENTER);
+
+        // Descripción
+        txtDescripcion.setBackground(new Color(35, 35, 35));
+        txtDescripcion.setForeground(Color.WHITE);
+        txtDescripcion.setCaretColor(Color.WHITE);
+        txtDescripcion.setFont(new Font("Arial", Font.PLAIN, 14));
+        txtDescripcion.setBorder(
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)
+        );
+
+        JScrollPane scrollDescripcion = new JScrollPane(txtDescripcion);
+        scrollDescripcion.setBorder(
+                BorderFactory.createEmptyBorder(0, 10, 10, 10)
+        );
+        scrollDescripcion.getViewport().setBackground(
+                new Color(35, 35, 35)
+        );
+
+        panelSuperior.add(scrollDescripcion, BorderLayout.SOUTH);
+
+        add(panelSuperior, BorderLayout.CENTER);
+
+        // Botón
+        btnAlquilar.setBackground(ROJO);
+        btnAlquilar.setForeground(Color.WHITE);
+        btnAlquilar.setFont(new Font("Arial", Font.BOLD, 15));
+        btnAlquilar.setFocusPainted(false);
+        btnAlquilar.setBorderPainted(false);
+        btnAlquilar.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+
         add(btnAlquilar, BorderLayout.SOUTH);
 
-        JLabel logo= new JLabel("VIDEOCLUB");
-        logo.setFont(new Font("Arial", Font.BOLD, 20));
-        logo.setForeground(Color.RED);
-        JPanel panelSup= new JPanel();
-        panelSup.setBackground(new Color(20, 20, 20));
-        panelSup.setLayout(new BorderLayout());
-        panelSup.add(logo, BorderLayout.NORTH);
-        panelSup.add(panelDatos, BorderLayout.CENTER);
-
-        txtDescripcion.setFont(new Font("Arial", Font.PLAIN, 14));
-        txtDescripcion.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        JScrollPane scrollDescripcion = new JScrollPane(txtDescripcion);
-        scrollDescripcion.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-        scrollDescripcion.getViewport().setBackground(new Color(35, 35, 35));
-        scrollDescripcion.setBackground(new Color(20, 20, 20));
-        panelSup.add(scrollDescripcion, BorderLayout.SOUTH);
-
-        this.add(panelSup);
+        // Cargar información de la película
         cargarPelicula();
-        
-//todavia no estamos actuando sobre alquileres 
-        btnAlquilar.addActionListener(e ->
-            JOptionPane.showMessageDialog(
-                this,
-                "El proceso de alquiler se conectará más adelante."
-            )
-        );
+
+        // Mostrar el texto correcto del botón
+        actualizarBotonAlquiler();
+
+        // Acción del botón
+        btnAlquilar.addActionListener(e -> {
+
+            if (tieneAlquilerActivo()) {
+                devolverPelicula();
+            } else {
+                realizarAlquiler();
+            }
+
+        });
     }
 
-    public static int buscarIdPorTitulo(String titulo) {
-        String sql = "SELECT id_pelicula FROM peliculas WHERE LOWER(titulo) = LOWER(?)";
-        try (Connection conexion = Conexion.conectar();
-             PreparedStatement consulta = conexion.prepareStatement(sql)) {
-            consulta.setString(1, titulo);
-            try (ResultSet resultado = consulta.executeQuery()) {
-                if (resultado.next()) {
-                    return resultado.getInt("id_pelicula");
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
+    // =========================================
+    // VALORACIONES
+    // =========================================
 
     private JPanel crearPanelValoracion() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 0));
-        panel.setBackground(new Color(20, 20, 20));
+
+        JPanel panel = new JPanel(
+                new FlowLayout(FlowLayout.LEFT, 3, 0)
+        );
+        panel.setBackground(FONDO);
 
         JLabel lblTexto = new JLabel("Tu valoración: ");
         lblTexto.setForeground(Color.WHITE);
         panel.add(lblTexto);
 
         for (int i = 0; i < estrellas.length; i++) {
+
             int valor = i + 1;
+
             JLabel estrella = new JLabel("\u2605");
             estrella.setFont(new Font("Dialog", Font.PLAIN, 22));
-            estrella.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            estrella.setToolTipText(valor + " de 5");
+            estrella.setCursor(
+                    new Cursor(Cursor.HAND_CURSOR)
+            );
 
             estrella.addMouseListener(new MouseAdapter() {
+
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     pintarEstrellas(valor);
@@ -193,6 +229,7 @@ public class VentanaDetallesPelicula extends JFrame {
 
         pintarEstrellas(getValoracion());
         actualizarTextoValoracion();
+
         return panel;
     }
 
@@ -201,9 +238,13 @@ public class VentanaDetallesPelicula extends JFrame {
     }
 
     private void pintarEstrellas(int cantidad) {
+
         for (int i = 0; i < estrellas.length; i++) {
+
             if (i < cantidad) {
-                estrellas[i].setForeground(new Color(255, 195, 40));
+                estrellas[i].setForeground(
+                        new Color(255, 195, 40)
+                );
             } else {
                 estrellas[i].setForeground(Color.GRAY);
             }
@@ -211,7 +252,9 @@ public class VentanaDetallesPelicula extends JFrame {
     }
 
     private void actualizarTextoValoracion() {
+
         int valor = getValoracion();
+
         if (valor == 0) {
             lblValoracion.setText("  Sin valorar");
         } else {
@@ -219,65 +262,93 @@ public class VentanaDetallesPelicula extends JFrame {
         }
     }
 
+    // =========================================
+    // CARGAR PELÍCULA
+    // =========================================
+
     private void cargarPelicula() {
-    	
-    	//aqui totamos los datos de la pelicula q nos interesa, realizamos el metodo para ejecutar en sql con el select
-        String sql = "SELECT titulo, genero, anio, descripcion, "
-                   + "precio_alquiler, stock_total "
-                   + "FROM peliculas WHERE id_pelicula = ?";
-//aqui dejamos el where id_pelicula=? porq ese ? vamos a añadir el id q hemos metido al constructor inicialemnte 
-       
+
+        String sql =
+                "SELECT titulo, genero, anio, descripcion, "
+                + "precio_alquiler, stock_total "
+                + "FROM peliculas WHERE id_pelicula = ?";
+
         try (Connection conexion = Conexion.conectar();
-             PreparedStatement consulta = conexion.prepareStatement(sql)) {
-// y diras, porq 1? pues porq significa en el interrogante 1, su hubera "WHERE idPelicula=? AND anio=?" dirias 1> id y 2> anio
+             PreparedStatement consulta =
+                     conexion.prepareStatement(sql)) {
+
             consulta.setInt(1, idPelicula);
-//aqui metes visualemnte las cosas a su correspondiente label
+
             try (ResultSet resultado = consulta.executeQuery()) {
+
                 if (resultado.next()) {
-                    lblTitulo.setText("Título: "
-                            + resultado.getString("titulo"));
-                    lblGenero.setText("Género: "
-                            + resultado.getString("genero"));
-                    lblAnio.setText("Año: "
-                            + resultado.getInt("anio"));
-                    lblPrecio.setText("Precio: "
-                            + resultado.getDouble("precio_alquiler") + " €");
-//aqui como quieres saca el precio final despues de la promocion, pues gurdas ese valor en una variable y asi poder realizar operaciones con ella mas adelanre
-                    double precioOriginal = resultado.getDouble("precio_alquiler");
+
+                    lblTitulo.setText(
+                            "Título: " + resultado.getString("titulo")
+                    );
+
+                    lblGenero.setText(
+                            "Género: " + resultado.getString("genero")
+                    );
+
+                    lblAnio.setText(
+                            "Año: " + resultado.getInt("anio")
+                    );
+
+                    double precioOriginal =
+                            resultado.getDouble("precio_alquiler");
+
+                    lblPrecio.setText(
+                            "Precio: " + precioOriginal + " €"
+                    );
+
                     cargarPromocion(precioOriginal);
-                    lblDisponibilidad.setText("Stock total: "
-                            + resultado.getInt("stock_total"));
+
+                    lblDisponibilidad.setText(
+                            "Stock total: "
+                            + resultado.getInt("stock_total")
+                    );
 
                     txtDescripcion.setText(
-                            resultado.getString("descripcion"));
+                            resultado.getString("descripcion")
+                    );
+
                 } else {
+
                     JOptionPane.showMessageDialog(
                             this,
                             "No se ha encontrado esa película."
                     );
+
                     dispose();
                 }
             }
 
         } catch (SQLException e) {
+
             JOptionPane.showMessageDialog(
                     this,
                     "Error al cargar la película: " + e.getMessage()
             );
         }
     }
+
+    // =========================================
+    // PROMOCIONES
+    // =========================================
+
     private void cargarPromocion(double precioOriginal) {
 
-        String sql = "SELECT nombre, descuento FROM promociones "
-                   + "WHERE id_pelicula = ? "
-                   + "AND date('now') BETWEEN date(fecha_inicio) "
-                   + "AND date(fecha_fin) "
-                   + "ORDER BY descuento DESC LIMIT 1";
-       // Por tanto, no mostramos cualquier promoción guardada en
-       // la base de datos, sino una que corresponda a la película y
-      //  esté vigente según la fecha de SQLite.
+        String sql =
+                "SELECT nombre, descuento FROM promociones "
+                + "WHERE id_pelicula = ? "
+                + "AND date('now') BETWEEN date(fecha_inicio) "
+                + "AND date(fecha_fin) "
+                + "ORDER BY descuento DESC LIMIT 1";
+
         try (Connection conexion = Conexion.conectar();
-             PreparedStatement consulta = conexion.prepareStatement(sql)) {
+             PreparedStatement consulta =
+                     conexion.prepareStatement(sql)) {
 
             consulta.setInt(1, idPelicula);
 
@@ -286,41 +357,276 @@ public class VentanaDetallesPelicula extends JFrame {
                 if (resultado.next()) {
 
                     String nombre = resultado.getString("nombre");
-                    double descuento = resultado.getDouble("descuento");
+                    double descuento =
+                            resultado.getDouble("descuento");
 
-                    double precioFinal = precioOriginal
-                            * (1 - descuento / 100.0);
+                    precioAlquilerFinal =
+                            precioOriginal * (1 - descuento / 100.0);
 
                     lblPromocion.setText(
                             "Promoción: " + nombre
-                            + " (" + descuento + "% de descuento)");
+                            + " (" + descuento + "% de descuento)"
+                    );
 
                     lblPrecioFinal.setText(String.format(
                             java.util.Locale.ROOT,
                             "Precio final: %.2f €",
-                            precioFinal));
+                            precioAlquilerFinal
+                    ));
 
                 } else {
 
-                    lblPromocion.setText("Promoción: Sin promoción");
+                    precioAlquilerFinal = precioOriginal;
+
+                    lblPromocion.setText(
+                            "Promoción: Sin promoción"
+                    );
 
                     lblPrecioFinal.setText(String.format(
                             java.util.Locale.ROOT,
                             "Precio final: %.2f €",
-                            precioOriginal));
+                            precioOriginal
+                    ));
                 }
             }
 
         } catch (SQLException e) {
 
-            lblPromocion.setText("No se pudieron cargar las promociones");
+            precioAlquilerFinal = precioOriginal;
+
+            lblPromocion.setText(
+                    "No se pudieron cargar las promociones"
+            );
 
             lblPrecioFinal.setText(String.format(
                     java.util.Locale.ROOT,
                     "Precio original: %.2f €",
-                    precioOriginal));
+                    precioOriginal
+            ));
 
             e.printStackTrace();
         }
     }
+
+    // =========================================
+    // COMPROBAR ALQUILER ACTIVO
+    // =========================================
+
+    private boolean tieneAlquilerActivo() {
+
+        String sql =
+                "SELECT COUNT(*) FROM alquileres "
+                + "WHERE id_usuario = ? "
+                + "AND id_pelicula = ? "
+                + "AND fecha_devolucion IS NULL";
+
+        try (Connection conexion = Conexion.conectar();
+             PreparedStatement consulta =
+                     conexion.prepareStatement(sql)) {
+
+            consulta.setInt(1, idUsuario);
+            consulta.setInt(2, idPelicula);
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+
+                return resultado.next()
+                        && resultado.getInt(1) > 0;
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error al comprobar el alquiler: "
+                    + e.getMessage()
+            );
+
+            return false;
+        }
+    }
+
+    // =========================================
+    // ACTUALIZAR TEXTO DEL BOTÓN
+    // =========================================
+
+    private void actualizarBotonAlquiler() {
+
+        if (tieneAlquilerActivo()) {
+            btnAlquilar.setText("Devolver");
+        } else {
+            btnAlquilar.setText("Alquilar");
+        }
+    }
+
+    // =========================================
+    // REALIZAR ALQUILER
+    // =========================================
+
+    private void realizarAlquiler() {
+
+        String sqlStock =
+                "SELECT p.stock_total, "
+                + "(SELECT COUNT(*) FROM alquileres a "
+                + "WHERE a.id_pelicula = p.id_pelicula "
+                + "AND a.fecha_devolucion IS NULL) AS alquiladas "
+                + "FROM peliculas p WHERE p.id_pelicula = ?";
+
+        String sqlInsertar =
+                "INSERT INTO alquileres "
+                + "(id_usuario, id_pelicula, fecha_alquiler, "
+                + "fecha_limite, precio, fecha_devolucion) "
+                + "VALUES (?, ?, date('now'), "
+                + "date('now', '+7 days'), ?, NULL)";
+
+        try (Connection conexion = Conexion.conectar()) {
+
+            // Comprobar si quedan unidades
+            try (PreparedStatement consulta =
+                    conexion.prepareStatement(sqlStock)) {
+
+                consulta.setInt(1, idPelicula);
+
+                try (ResultSet resultado = consulta.executeQuery()) {
+
+                    if (!resultado.next()) {
+
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "No se ha encontrado la película."
+                        );
+
+                        return;
+                    }
+
+                    int stockTotal =
+                            resultado.getInt("stock_total");
+
+                    int alquiladas =
+                            resultado.getInt("alquiladas");
+
+                    if (alquiladas >= stockTotal) {
+
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "No quedan unidades disponibles."
+                        );
+
+                        return;
+                    }
+                }
+            }
+
+            // Insertar alquiler
+            try (PreparedStatement insertar =
+                    conexion.prepareStatement(sqlInsertar)) {
+
+                insertar.setInt(1, idUsuario);
+                insertar.setInt(2, idPelicula);
+                insertar.setDouble(3, precioAlquilerFinal);
+
+                insertar.executeUpdate();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "¡Alquiler realizado correctamente!\n"
+                        + "Fecha límite: dentro de 7 días."
+                );
+
+                actualizarBotonAlquiler();
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error al realizar el alquiler: "
+                    + e.getMessage()
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    // =========================================
+    // DEVOLVER PELÍCULA
+    // =========================================
+
+    private void devolverPelicula() {
+
+        String sql =
+                "UPDATE alquileres "
+                + "SET fecha_devolucion = date('now') "
+                + "WHERE id_usuario = ? "
+                + "AND id_pelicula = ? "
+                + "AND fecha_devolucion IS NULL";
+
+        try (Connection conexion = Conexion.conectar();
+             PreparedStatement consulta =
+                     conexion.prepareStatement(sql)) {
+
+            consulta.setInt(1, idUsuario);
+            consulta.setInt(2, idPelicula);
+
+            int filas = consulta.executeUpdate();
+
+            if (filas > 0) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "¡Película devuelta correctamente!"
+                );
+
+                actualizarBotonAlquiler();
+                cargarPelicula();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No tienes esta película alquilada."
+                );
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error al devolver la película: "
+                    + e.getMessage()
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    // =========================================
+    // BUSCAR ID POR TÍTULO
+    // =========================================
+
+    public static int buscarIdPorTitulo(String titulo) {
+
+        String sql =
+                "SELECT id_pelicula FROM peliculas "
+                + "WHERE LOWER(titulo) = LOWER(?)";
+
+        try (Connection conexion = Conexion.conectar();
+             PreparedStatement consulta =
+                     conexion.prepareStatement(sql)) {
+
+            consulta.setString(1, titulo);
+
+            try (ResultSet resultado = consulta.executeQuery()) {
+
+                if (resultado.next()) {
+                    return resultado.getInt("id_pelicula");
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
 }
+
