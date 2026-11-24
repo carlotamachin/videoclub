@@ -90,7 +90,7 @@ public class VentanaClientes extends JFrame {
 		btnClientes.setEnabled(false);
 
 		btnPeliculas.addActionListener(e -> {
-		    new VentanaPeliculas();
+		    new VentanaPeliculas(true);
 		});
 
 		btnDevoluciones.addActionListener(e -> {
