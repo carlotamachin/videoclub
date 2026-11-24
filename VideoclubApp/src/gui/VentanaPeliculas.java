@@ -43,9 +43,15 @@ public class VentanaPeliculas extends JFrame {
     private JComboBox<String> cmbDisponibilidad;
 
     private boolean esAdmin;
+    private int idUsuario;
 
     public VentanaPeliculas(boolean esAdmin) {
+        this(esAdmin, -1);
+    }
+
+    public VentanaPeliculas(boolean esAdmin, int idUsuario) {
         this.esAdmin = esAdmin;
+        this.idUsuario = idUsuario;
         if (esAdmin) {
             setTitle("Videoclub - Gestión de películas");
         } else {
@@ -396,7 +402,12 @@ public class VentanaPeliculas extends JFrame {
                 "\"" + titulo + "\" todavía no está en la base de datos.");
             return;
         }
-        VentanaDetallesPelicula ventana = new VentanaDetallesPelicula(idBD);
+        if (idUsuario == -1) {
+            JOptionPane.showMessageDialog(this, "Debes iniciar sesión para abrir los detalles.");
+            return;
+        }
+
+        VentanaDetallesPelicula ventana = new VentanaDetallesPelicula(idBD, idUsuario);
         ventana.setVisible(true);
     }
 
