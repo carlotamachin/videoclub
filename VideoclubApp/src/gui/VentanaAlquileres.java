@@ -1,13 +1,17 @@
 
 package gui;
 
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.time.LocalDate;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -22,19 +26,23 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import modelo.GestorPeliculas;
-import modelo.Pelicula;
+import main.Conexion;
 
 public class VentanaAlquileres extends JFrame {
 
     private static final long serialVersionUID = 1L;
 
     private JPanel mainPanel;
-    private JTextField txtCliente;
+    private JComboBox<String> cmbCliente;
     private JComboBox<String> cmbPelicula;
     private JTextField txtFecha;
     private JTextField txtFechaLimite;
     private JTextField txtPrecio;
+
+    // Guardar los identificadores y precios de la base de datos
+    private HashMap<String, Integer> clientes = new HashMap<>();
+    private HashMap<String, Integer> peliculas = new HashMap<>();
+    private HashMap<String, Double> precios = new HashMap<>();
 
     public VentanaAlquileres() {
 
@@ -98,16 +106,16 @@ public class VentanaAlquileres extends JFrame {
         );
         panelFormulario.setBackground(Color.BLACK);
 
-        txtCliente = new JTextField(20);
+        // Desplegables de clientes y películas
+        cmbCliente = new JComboBox<>();
+        cmbCliente.addItem("Selecciona un cliente");
 
         cmbPelicula = new JComboBox<>();
         cmbPelicula.addItem("Selecciona una película");
 
-        for (Pelicula pelicula : GestorPeliculas.getPeliculas()) {
-            if (pelicula.isDisponible()) {
-                cmbPelicula.addItem(pelicula.getTitulo());
-            }
-        }
+        // Cargar datos reales de la base de datos
+        cargarClientes();
+        cargarPeliculas();
 
         txtFecha = new JTextField(LocalDate.now().toString(), 20);
         txtFecha.setEditable(false);
@@ -121,7 +129,7 @@ public class VentanaAlquileres extends JFrame {
         txtPrecio.setEditable(false);
 
         panelFormulario.add(crearEtiqueta("Cliente:"));
-        panelFormulario.add(txtCliente);
+        panelFormulario.add(cmbCliente);
 
         panelFormulario.add(crearEtiqueta("Película:"));
         panelFormulario.add(cmbPelicula);
@@ -200,33 +208,91 @@ public class VentanaAlquileres extends JFrame {
         return etiqueta;
     }
 
+    // Cargar los clientes registrados en la base de datos
+    private void cargarClientes() {
+
+        String sql = "SELECT id_usuario, nombre, apellidos "
+                   + "FROM usuarios "
+                   + "WHERE tipo_usuario = 'cliente'";
+
+        try (Connection conexion = Conexion.conectar();
+             PreparedStatement consulta = conexion.prepareStatement(sql);
+             ResultSet resultado = consulta.executeQuery()) {
+
+            while (resultado.next()) {
+
+                int id = resultado.getInt("id_usuario");
+
+                String nombre = resultado.getString("nombre")
+                        + " " + resultado.getString("apellidos");
+
+                cmbCliente.addItem(nombre);
+                clientes.put(nombre, id);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                this, "Error al cargar los clientes."
+            );
+            e.printStackTrace();
+        }
+    }
+
+    // Cargar las películas y sus precios de la base de datos
+    private void cargarPeliculas() {
+
+        String sql = "SELECT id_pelicula, titulo, precio_alquiler "
+                   + "FROM peliculas";
+
+        try (Connection conexion = Conexion.conectar();
+             PreparedStatement consulta = conexion.prepareStatement(sql);
+             ResultSet resultado = consulta.executeQuery()) {
+
+            while (resultado.next()) {
+
+                int id = resultado.getInt("id_pelicula");
+
+                String titulo = resultado.getString("titulo");
+
+                double precio = resultado.getDouble("precio_alquiler");
+
+                cmbPelicula.addItem(titulo);
+                peliculas.put(titulo, id);
+                precios.put(titulo, precio);
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(
+                this, "Error al cargar las películas."
+            );
+            e.printStackTrace();
+        }
+    }
+
+    // Mostrar el precio real de la película seleccionada
     private void actualizarPrecio() {
 
         String titulo = (String) cmbPelicula.getSelectedItem();
 
         txtPrecio.setText("");
 
-        for (Pelicula pelicula : GestorPeliculas.getPeliculas()) {
-
-            if (pelicula.getTitulo().equals(titulo)) {
-                txtPrecio.setText(
-                    String.format("%.2f", pelicula.getPrecio())
-                );
-                break;
-            }
+        if (precios.containsKey(titulo)) {
+            txtPrecio.setText(
+                String.format("%.2f", precios.get(titulo))
+            );
         }
     }
 
     private void registrarAlquiler() {
 
-        if (txtCliente.getText().trim().isEmpty()) {
+        if (cmbCliente.getSelectedIndex() <= 0) {
             JOptionPane.showMessageDialog(
-                this, "Introduce el nombre del cliente."
+                this, "Selecciona un cliente."
             );
             return;
         }
 
-        if (cmbPelicula.getSelectedIndex() == 0) {
+        if (cmbPelicula.getSelectedIndex() <= 0) {
             JOptionPane.showMessageDialog(
                 this, "Selecciona una película."
             );
